@@ -11,9 +11,9 @@ function get_BGS(A)
 end
 
 function plot_histogram_c_range()
-    N=100
+    N = 100
     p = plot()
-    c_values = [-5, -2,0, 2, 5] # [-5, -1, 0, 1, 5]
+    c_values = [-5, -2, 0, 2, 5] # [-5, -1, 0, 1, 5]
     for c = c_values
         A = get_A(N, c)
         scatter!(p, eigvals(get_BGS(A)), label="C = $c", ms=3)
@@ -35,7 +35,7 @@ end
 
 function plot_aboslute_values_c_range()
     n_value = 100
-    c_values = [-5,  0, 5, 10, 100]
+    c_values = [-5, 0, 5, 10, 100]
     p = plot()
     for c = c_values
         A = get_A(n_value, c)
@@ -64,18 +64,18 @@ end
 function test_get_BGS()
     A = [2 -1 0; -1 2 -1; 0 -1 2]
     B_expected = [0 1/2 0; 0 1/4 1/2; 0 1/8 1/4]
-    print(get_BGS(A),  B_expected)
+    print(get_BGS(A), B_expected)
 end
 
 # Test f at some points
 function test_construct_F()
     f = construct_F(-1)
-    expected_f(x) = -2*exp(x)
+    expected_f(x) = -2 * exp(x)
 
     print(f(42) == expected_f(42))
 
     f_2 = construct_F(3)
-    expected_f_2(x) = 2*exp(x) - 4*x*exp(x)
+    expected_f_2(x) = 2 * exp(x) - 4 * x * exp(x)
 
     print(f_2(42) == expected_f_2(42))
 
@@ -85,3 +85,6 @@ plot_aboslute_values_n_range()
 
 
 # plot_histogram_n_range()
+
+
+

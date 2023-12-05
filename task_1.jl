@@ -60,4 +60,4 @@ error_plot = scatter(mesh_sizes, errors, title="Discretization Error scaling wit
 # plot!(mesh_sizes, 1 ./ mesh_sizes.^4)
 
 display(solution_plot)
-display(error_plot)
+# display(error_plot)
