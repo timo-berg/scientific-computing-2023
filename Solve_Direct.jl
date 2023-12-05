@@ -1,46 +1,6 @@
 using Plots
+include("utils.jl")
 
-# Get the coefficient matrix A
-function get_A(N, c)
-    h = 1 / N
-    A = zeros(N - 1, N - 1)
-
-    # Set the boundary points
-    A[1, 1] = c - 2 / h^2
-    A[1, 2] = 1 / h^2
-
-    A[N-1, N-2] = 1 / h^2
-    A[N-1, N-1] = c - 2 / h^2
-
-
-
-    # Set the interior points
-    for i = 2:N-2
-        A[i, i-1] = 1 / h^2
-        A[i, i] = c - 2 / h^2
-        A[i, i+1] = 1 / h^2
-    end
-
-    return A
-end
-
-# Get the right hand side vector b
-function get_b(N, f, α=1, β=0)
-    h = 1 / N
-
-    b = zeros(N - 1)
-
-    # Set the boundary points
-    b[1] = f(h) - α / h^2
-    b[N-1] = f(1 - h) - β / h^2
-
-    # Set the interior points
-    for i = 2:N-2
-        b[i] = f(i * h)
-    end
-
-    return b
-end
 
 # Set the coefficients
 α = 1
