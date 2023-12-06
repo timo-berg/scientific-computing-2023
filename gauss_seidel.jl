@@ -9,6 +9,9 @@ function get_BGS(A)
     B_GS = I - inv(M) * A
     return B_GS
 end
+println(get_A(3, 0))
+println(get_BGS(get_A(3,0)))
+eigvals(get_BGS(get_A(10,0)))
 
 function plot_histogram_c_range()
     N = 100
@@ -30,10 +33,10 @@ end
 
 
 function plot_histogram_n_range()
-    c_value = 2
+    c_value = 0
     p = plot()
     title!(p, L"Eigenvalues of $B_{GS}$ with $c = %$c_value$")
-    n_values = [10, 100, 200, 400] # [-5, -1, 0, 1, 5]
+    n_values = [10] #, 100, 200, 400] # [-5, -1, 0, 1, 5]
     for n = n_values
         A = get_A(n, c_value)
         scatter!(p, eigvals(get_BGS(A)), label="N = $n", ms=3)
@@ -56,7 +59,7 @@ function plot_aboslute_values_c_range()
 end
 
 function plot_aboslute_values_n_range()
-    c_value = 10
+    c_value = 0
     n_values = [10, 100, 200, 400]
     p = plot()
     for n = n_values
@@ -69,10 +72,40 @@ function plot_aboslute_values_n_range()
     p
 end
 
+function get_spectral_Bgs_values(c_values, n_values)
+    num_c = length(c_values)
+    num_n = length(n_values)
+    spectral_radiuses = Matrix{Float64}(undef, num_c, num_n)
+    
+    for c_i = 1:num_c
+        for n_i = 1:num_n
+        A = get_A(n_values[n_i], c_values[c_i])
+        eigenvalues = eigvals(get_BGS(A))
+        abs_eig = map(x -> abs(x), eigenvalues)
+        spectral_radius = maximum(abs_eig)
+        spectral_radiuses[c_i, n_i] = spectral_radius
+        end
+    end
+    return spectral_radiuses
+end
+
+function plot_spectral_heatmap()
+    c_values = -100:10:20
+    n_values = StepRange{Int}(10, 5, 60)
+    spectral_radiuses = get_spectral_Bgs_values(c_values, n_values)
+    p = heatmap(n_values, c_values, spectral_radiuses)
+    title!(p, "Spectral Radius Values")
+    xlabel!(p, "N values")
+    ylabel!(p, "C values")
+end
+
+plot_spectral_heatmap()
+
 function test_get_BGS()
     A = [2 -1 0; -1 2 -1; 0 -1 2]
     B_expected = [0 1/2 0; 0 1/4 1/2; 0 1/8 1/4]
-    print(get_BGS(A), B_expected)
+    println(eigvals(get_BGS(A)))
+    println(get_BGS(A),  B_expected)
 end
 
 # Test f at some points
@@ -91,8 +124,4 @@ end
 
 plot_aboslute_values_n_range()
 
-
-# plot_histogram_n_range()
-
-
-
+#plot_histogram_n_range()
