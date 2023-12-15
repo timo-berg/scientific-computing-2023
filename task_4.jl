@@ -1,8 +1,5 @@
 # Run Gauss-Seidel as a solver. Determine the asymptotic rate of convergence. Compare
 # with the spectral radius.
-
-# STUCK: Implemented Gauss-Seidel but solution looks weird?
-
 # TODO: Get the spectral radius from task 3 and plot the convergence rate 
 # for different values of c and N
 
@@ -53,15 +50,17 @@ function plot_convergence(N, c, tol=1e-6, max_iter=1000)
     return p
 end
 
-function plot_solution(N, c, tol=1e-100, max_iter=10000)
+function plot_solution(N, c, tol=1e-10, max_iter=100000)
     u_exact(x) = exp(x) * (1 - x)
     u, err, iter = simulate(N, c, tol, max_iter)
     x_numeric = range(0, 1, length=N - 1)
     p = plot(x_numeric, u, label="Numerical Solution", title="Exact Solution vs. Numerical Solution", xlabel="x", ylabel="u(x)")
     plot!(x_numeric, u_exact.(x_numeric), label="Exact Solution")
+    print("Error: ", norm(u_exact.(x_numeric) - u), "\n")
+    print("Iterations: ", iter)
     return p
 end
 
 # plot_convergence(100, 2)
-plot_solution(15, 2)
+plot_solution(100, 2)
 
