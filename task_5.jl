@@ -8,30 +8,18 @@ using Plots
 using LaTeXStrings
 include("utils.jl")
 
-function get_M_SGS(A)
-    n = size(A)[1]
-    D = Diagonal(A)
-    E = -UpperTriangular(A)
-    F = -LowerTriangular(A)
-    return (D - E) * inv(D) * (D - F)
-end
-
-
-c_values = -100:10:20
-n_values = 10:5:60
+c_values = -20:2:20
+n_values = 10:10:200
 cond_values = zeros(length(c_values), length(n_values))
 
-for c = c_values
-    for n = n_values
+for (i, c) in enumerate(c_values)
+    for (j, n) in enumerate(n_values)
         A = get_A(n, c)
-        M_SGS = get_M_SGS(A)
-        try
-            cond_values[c_values.==c, n_values.==n] = cond(inv(M_SGS) * A)
-        catch
-            println("Error for c = $c, n = $n")
-        end
+        M_inv_SGS = get_inv_M_SGS(A)
+        cond_nr = cond(M_inv_SGS * A)
+        cond_values[i, j] = log(cond_nr)
     end
 end
 
 # Heatmap of condition numbers
-heatmap(n_values, c_values, cond_values, title="Condition number of M_SGS^{-1}A", xlabel="N", ylabel="c", color=:viridis, legend=:none)
+heatmap(n_values, c_values, cond_values, title=L"Log Condition number of $M_{SGS}^{-1}A$", xlabel="N", ylabel="c", color=:viridis)
