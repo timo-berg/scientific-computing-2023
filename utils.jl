@@ -42,5 +42,7 @@ end
 
 # Returns the f function given a certain c
 function construct_F(c)
-    return function f(x) exp(x) * (c-1) - x*exp(x) *(1+c) end
+    return function f(x)
+        exp(x) * (c - 1) - x * exp(x) * (1 + c)
+    end
 end

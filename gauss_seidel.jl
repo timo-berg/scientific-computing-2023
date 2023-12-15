@@ -21,6 +21,14 @@ function plot_histogram_c_range()
     p
 end
 
+function get_inv_M_SGS(A)
+    D = Diagonal(A)
+    E = -UpperTriangular(A)
+    F = -LowerTriangular(A)
+    return inv(D - F) * D * inv(D - E)
+end
+
+
 function plot_histogram_n_range()
     c_value = 2
     p = plot()
