@@ -1,7 +1,7 @@
 function conjugate_gradient(A, b, x0, tol, maxiter)
     # Standard implementation of the conjugate gradient method
     r = b - A * x0
-    if norm(r) < tol
+    if norm(r) / norm(b) < tol
         return x0
     end
 
@@ -16,7 +16,7 @@ function conjugate_gradient(A, b, x0, tol, maxiter)
         r_old = r
         r = r - α * A_p
         push!(convergence, norm(r))
-        if norm(r) < tol
+        if norm(r) / norm(b) < tol
             return x, convergence, i
         end
         β = dot(r, r) / dot(r_old, r_old)
@@ -31,7 +31,7 @@ function preconditioned_cg(A, b, x0, tol, maxiter, M_inv)
     r = b
     p = z_old = r_old = 0 # Initialize to zero, will only be used in iteration >2
 
-    if norm(r) < tol
+    if norm(r) / norm(b) < tol
         return x0
     end
 
@@ -57,7 +57,7 @@ function preconditioned_cg(A, b, x0, tol, maxiter, M_inv)
         r_old = r
         r = r - α * A_p
         push!(convergence, norm(r))
-        if norm(r) < tol
+        if norm(r) / norm(b) < tol
             return x, convergence, i
         end
     end
@@ -70,7 +70,7 @@ function preconditioned_cg_residuals(A, b, x0, tol, maxiter, M_inv)
     r = b# In the script they use r = b?
     p = z_old = r_old = 0 # Initialize to zero, will only be used in iteration >2
 
-    if norm(r) < tol
+    if norm(r) / norm(b) < tol
         return x0
     end
 
@@ -98,7 +98,7 @@ function preconditioned_cg_residuals(A, b, x0, tol, maxiter, M_inv)
         r = r - α * A_p
         push!(convergence, norm(r))
         push!(residuals, r)
-        if norm(r) < tol
+        if norm(r) / norm(b) < tol
             return residuals
         end
     end
