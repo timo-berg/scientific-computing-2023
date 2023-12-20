@@ -23,8 +23,8 @@ end
 
 function get_inv_M_SGS(A)
     D = Diagonal(A)
-    E = -UpperTriangular(A)
-    F = -LowerTriangular(A)
+    E = -LowerTriangular(A)
+    F = -UpperTriangular(A)
     return inv(D - F) * D * inv(D - E)
 end
 
