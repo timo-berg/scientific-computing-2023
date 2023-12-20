@@ -1,6 +1,7 @@
 using LinearAlgebra
 using Plots
 using LaTeXStrings
+include("multi_grid.jl")
 
 ###### Works but not sure if its correct? 
 
