@@ -34,3 +34,74 @@ function get_B_CGC(H, h, c)
 
     return I - I_H_to_h * A_H_inv * I_h_to_H * A
 end
+
+# Two-grid cycle
+function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner)
+    # Smoother
+    S_h = I - preconditioner * A
+    # Interpolated problem
+    A_H = I_h_to_H * A * I_H_to_h
+    
+    # Pre smoothing
+    u = S_h * u + preconditioner * b
+
+    # residual
+    r_h = b - A * u
+
+    # Restrict residual
+    r_H = I_h_to_H * r_h
+
+    # Solve error equation
+    e_H = zeros(length(r_H))
+    e_H = inv(A_H) * r_H
+
+    # Interpolate error
+    e_h = I_H_to_h * e_H
+
+    # Correct
+    u = u + e_h
+
+    # Post smoothing
+    u = S_h * u + preconditioner * b
+
+    return u
+end
+
+
+    
+# Multi-grid cycle
+function multigrid(A, b, ϵ, max_iter)
+    h = length(b)
+    H = Int((h + 1) / 2 - 1)
+
+    # Get the projector
+    I_H_to_h = linear_interpolation(h, H)
+    I_h_to_H = half_weight_mapping(h, H)
+
+    # Get the smoother
+    M_inv = get_inv_M_SGS(A)
+
+    # Initial guess
+    u = zeros(h)
+
+    errors = []
+    
+    # Iterate
+    for i = 1:max_iter
+        # Two-grid cycle
+        u = two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, M_inv)
+
+        # Error
+        error = norm(A * u - b)
+        push!(errors, error)
+        # Check convergence
+        if error < ϵ
+            println("Converged after $i iterations")
+            break
+        end
+    end
+
+    println("Error: ", norm(A * u - b))
+
+    return u, errors
+end
