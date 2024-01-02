@@ -5,13 +5,12 @@ include("multi_grid.jl")
 
 ###### Works but not sure if its correct? 
 
-N = 300
+N = 300 # Nr of mesh elements. 
 c = 60
-h = N - 1
-H = Int(N / 2 - 1)
+n_h = N - 1 # Nr of internal nodes in fine grid
+n_H = Int(N / 2 - 1) # Nr of exernal nodes in coarse grid
 
-
-B_CGC = get_B_CGC(H, h, c)
+B_CGC = get_B_CGC(n_H, n_h , c)
 
 B_eigvals = eigvals(B_CGC)
 

@@ -1,5 +1,5 @@
 # Get the coefficient matrix A for the Poisson equation
-function get_A(N::Int, c::Float64)
+function get_A(N::Int, c::Number)
     h = 1 / N
     A = zeros(N - 1, N - 1)
 

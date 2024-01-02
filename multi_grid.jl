@@ -25,10 +25,19 @@ function half_weight_mapping(h, H)
     return I * 1 / 4
 end
 
-function get_B_CGC(H, h, c)
-    I_H_to_h = linear_interpolation(h, H)
-    I_h_to_H = half_weight_mapping(h, H)
-    A = get_A(h + 1, c)
+"""
+    get_B_CGC(n_H, n_h, c)
+
+Returns the error propagation matrix for the CGC method.
+
+# Arguments
+- `n_H::Int`: Number of internal nodes in the coarse grid
+- `n_h::Int`: Number of internal nodes in the fine grid
+"""
+function get_B_CGC(n_H, n_h, c)
+    I_H_to_h = linear_interpolation(n_h, n_H)
+    I_h_to_H = half_weight_mapping(n_h, n_H)
+    A = get_A(n_h + 1, c)
 
     A_H_inv = inv(I_h_to_H * A * I_H_to_h)
 
@@ -71,12 +80,12 @@ end
     
 # Multi-grid cycle
 function multigrid(A, b, ϵ, max_iter)
-    h = length(b)
-    H = Int((h + 1) / 2 - 1)
+    n_h = length(b)
+    n_H = Int((h + 1) / 2 - 1)
 
     # Get the projector
-    I_H_to_h = linear_interpolation(h, H)
-    I_h_to_H = half_weight_mapping(h, H)
+    I_H_to_h = linear_interpolation(n_h, n_H)
+    I_h_to_H = half_weight_mapping(n_h, n_H)
 
     # Get the smoother
     M_inv = get_inv_M_SGS(A)
