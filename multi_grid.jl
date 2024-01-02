@@ -26,6 +26,27 @@ function half_weight_mapping(h, H)
 end
 
 """
+Returns the number of nodes in the 1 dimenionsal fine and double coarse grid given the number of meshes.
+"""
+function get_fine_and_coarse_nr_node(N)
+    n_h, n_H = N-1, Int(N/2 - 1)
+    return n_h, n_H
+end
+
+"""
+Returns the inverse of the coarse grid correction operator
+"""
+function get_M_CGC_inv(n_H, n_h, c)
+    I_H_to_h = linear_interpolation(n_h, n_H)
+    I_h_to_H = half_weight_mapping(n_h, n_H)
+    A = get_A(n_h + 1, c)
+
+    A_H_inv = inv(I_h_to_H * A * I_H_to_h)
+
+    return I_H_to_h * A_H_inv * I_h_to_H
+end
+
+"""
     get_B_CGC(n_H, n_h, c)
 
 Returns the error propagation matrix for the CGC method.
@@ -35,13 +56,9 @@ Returns the error propagation matrix for the CGC method.
 - `n_h::Int`: Number of internal nodes in the fine grid
 """
 function get_B_CGC(n_H, n_h, c)
-    I_H_to_h = linear_interpolation(n_h, n_H)
-    I_h_to_H = half_weight_mapping(n_h, n_H)
-    A = get_A(n_h + 1, c)
+    M_CGC_inv = get_M_CGC_inv(n_H, n_h, c)
 
-    A_H_inv = inv(I_h_to_H * A * I_H_to_h)
-
-    return I - I_H_to_h * A_H_inv * I_h_to_H * A
+    return I - M_CGC_inv * A
 end
 
 # Two-grid cycle
