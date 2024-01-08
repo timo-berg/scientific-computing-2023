@@ -1,3 +1,20 @@
+"""
+    conjugate_gradient(A, b, x0, tol, maxiter)
+
+Solves the linear system Ax = b using the Conjugate Gradient method.
+
+Arguments:
+- `A`: The coefficient matrix of the linear system.
+- `b`: The right-hand side vector.
+- `x0`: The initial guess for the solution.
+- `tol`: The tolerance for convergence.
+- `maxiter`: The maximum number of iterations.
+
+Returns:
+- `x`: The solution vector.
+- `residuals`: The residuals at each iteration.
+- `iter`: The number of iterations used.
+"""
 function conjugate_gradient(A, b, x0, tol, maxiter)
     # Standard implementation of the conjugate gradient method
     r = b - A * x0
@@ -26,8 +43,10 @@ function conjugate_gradient(A, b, x0, tol, maxiter)
     return x, convergence, maxiter
 end
 
+""" 
+Preconditioned implementation of the conjugate gradient method
+"""
 function preconditioned_cg(A, b, x0, tol, maxiter, M_inv)
-    # Preconditioned implementation of the conjugate gradient method
     r = b
     p = z_old = r_old = 0 # Initialize to zero, will only be used in iteration >2
 
@@ -67,7 +86,7 @@ end
 
 function preconditioned_cg_residuals(A, b, x0, tol, maxiter, M_inv)
     # Preconditioned implementation of the conjugate gradient method
-    r = b# In the script they use r = b?
+    r = b # With initial guess u=0 then the residual will be b.
     p = z_old = r_old = 0 # Initialize to zero, will only be used in iteration >2
 
     if norm(r) / norm(b) < tol
