@@ -105,3 +105,8 @@ function preconditioned_cg_residuals(A, b, x0, tol, maxiter, M_inv)
 
     return residuals
 end
+
+function conjugate_gradient_solver(A, b)
+    x0 = zeros(length(b))
+    conjugate_gradient(A, b, x0, 1e-6, 1000)
+end

@@ -35,8 +35,12 @@ function get_B_CGC(H, h, c)
     return I - I_H_to_h * A_H_inv * I_h_to_H * A
 end
 
+function direct_solve(A, b)
+    return A \ b
+end
+
 # Two-grid cycle
-function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner)
+function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner, solver=direct_solve)
     # Smoother
     S_h = I - preconditioner * A
     # Interpolated problem
@@ -53,7 +57,7 @@ function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner)
 
     # Solve error equation
     e_H = zeros(length(r_H))
-    e_H = inv(A_H) * r_H
+    e_H = solver(A_H, r_H)
 
     # Interpolate error
     e_h = I_H_to_h * e_H
@@ -70,7 +74,7 @@ end
 
     
 # Multi-grid cycle
-function multigrid(A, b, ϵ, max_iter)
+function multigrid(A, b, ϵ, max_iter, solver=direct_solve)
     h = length(b)
     H = Int((h + 1) / 2 - 1)
 
@@ -89,7 +93,7 @@ function multigrid(A, b, ϵ, max_iter)
     # Iterate
     for i = 1:max_iter
         # Two-grid cycle
-        u = two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, M_inv)
+        u = two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, M_inv, solver)
 
         # Error
         error = norm(A * u - b)
