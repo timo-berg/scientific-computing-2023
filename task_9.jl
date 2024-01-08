@@ -7,7 +7,7 @@ include("multi_grid.jl")
 ###### Something in the B_CGC matrix is probably wrong 
 
 
-c_values = -20:2:20
+c_values = 0:2:20
 n_values = 10:10:200
 spectral_radii = zeros(length(c_values), length(n_values))
 

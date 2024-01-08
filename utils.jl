@@ -4,19 +4,19 @@ function get_A(N::Int, c::Number)
     A = zeros(N - 1, N - 1)
 
     # Set the boundary points
-    A[1, 1] = c - 2 / h^2
-    A[1, 2] = 1 / h^2
+    A[1, 1] = c + 2 / h^2
+    A[1, 2] =  - 1 / h^2
 
-    A[N-1, N-2] = 1 / h^2
-    A[N-1, N-1] = c - 2 / h^2
+    A[N-1, N-2] = - 1 / h^2
+    A[N-1, N-1] = c + 2 / h^2
 
 
 
     # Set the interior points
     for i = 2:N-2
-        A[i, i-1] = 1 / h^2
-        A[i, i] = c - 2 / h^2
-        A[i, i+1] = 1 / h^2
+        A[i, i-1] = - 1 / h^2
+        A[i, i] = c + 2 / h^2
+        A[i, i+1] = - 1 / h^2
     end
 
     return A
@@ -29,8 +29,8 @@ function get_b(N, f, α=1, β=0)
     b = zeros(N - 1)
 
     # Set the boundary points
-    b[1] = f(h) - α / h^2
-    b[N-1] = f(1 - h) - β / h^2
+    b[1] = f(h) + α / h^2
+    b[N-1] = f(1 - h) + β / h^2
 
     # Set the interior points
     for i = 2:N-2
@@ -43,6 +43,17 @@ end
 # Returns the f function given a certain c
 function construct_F(c)
     return function f(x)
-        exp(x) * (c - 1) - x * exp(x) * (1 + c)
+        exp(x) * (c + 1) + x * exp(x) * (1 - c)
     end
+end
+
+
+function check_correctness(N, c)
+    A = get_A(N, c)
+    b = get_b(N, construct_F(c))
+    u_exact(x) = exp(x) * (1 - x)
+    u = u_exact.(range(1/N, 1 - 1/N, length=N - 1))
+    error = norm(A * u - b)
+
+    return error
 end

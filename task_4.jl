@@ -2,9 +2,11 @@
 # with the spectral radius.
 # TODO: Get the spectral radius from task 3 and plot the convergence rate 
 # for different values of c and N
+# TODO: error gets worse at some
 
 using LinearAlgebra
 using Plots
+# using Debugger
 include("utils.jl")
 
 function do_step(u, A, b)
@@ -17,22 +19,26 @@ function do_step(u, A, b)
         u[i] = (b[i] - sum1 - sum2) / A[i, i]
     end
 
-    err = maximum(abs.(u_old - u))
-
-    return u, err
+    return u
 end
 
 function gauss_seidel(A, b, u0, tol=1e-6, max_iter=1000)
     u = u0
     err_list = []
-    u_new, err = do_step(u, A, b)
+    u_new = do_step(u, A, b)
+    err = norm(A * u_new - b)
+    push!(err_list, err)
     iter = 1
     while err > tol && iter < max_iter
         u = u_new
-        u_new, err = do_step(u, A, b)
+        u_new = do_step(u, A, b)
+
+        err = norm(A * u_new - b)
+
         push!(err_list, err)
         iter += 1
     end
+
     return u_new, err_list, iter
 end
 
@@ -46,14 +52,14 @@ end
 
 function plot_convergence(N, c, tol=1e-6, max_iter=1000)
     u, err, iter = simulate(N, c, tol, max_iter)
-    p = plot(err, title="Convergence of Gauss-Seidel", xlabel="Iteration", ylabel="Error", label="N = $N, c = $c")
+    p = plot(err, title="Convergence of Gauss-Seidel", xlabel="Iteration", ylabel="Error", label="N = $N, c = $c", yscale=:log10)
     return p
 end
 
-function plot_solution(N, c, tol=1e-10, max_iter=100000)
+function plot_solution(N, c, tol=1e-6, max_iter=15000)
     u_exact(x) = exp(x) * (1 - x)
     u, err, iter = simulate(N, c, tol, max_iter)
-    x_numeric = range(0, 1, length=N - 1)
+    x_numeric = range(1/N, 1-1/N, length=N - 1)
     p = plot(x_numeric, u, label="Numerical Solution", title="Exact Solution vs. Numerical Solution", xlabel="x", ylabel="u(x)")
     plot!(x_numeric, u_exact.(x_numeric), label="Exact Solution")
     print("Error: ", norm(u_exact.(x_numeric) - u), "\n")
@@ -61,6 +67,8 @@ function plot_solution(N, c, tol=1e-10, max_iter=100000)
     return p
 end
 
-# plot_convergence(100, 2)
-plot_solution(100, 2)
+
+
+# plot_convergence(100, 20)
+plot_solution(200, 10)
 

@@ -1,4 +1,5 @@
 using Plots
+using LinearAlgebra
 include("utils.jl")
 
 
@@ -6,7 +7,7 @@ include("utils.jl")
 α = 1
 β = 0
 c = -1
-f(x) = -2 * exp(x)
+f = construct_F(c)
 
 
 # Correct solution

@@ -26,4 +26,11 @@ scatter!(q, real.(large_eigvals), imag.(large_eigvals), label="", ms=3)
 
 
 # Combine the plots
-plot(p, q, layout=(1, 2), size=(1000, 500))
+# plot(p, q, layout=(1, 2), size=(1000, 500))
+
+
+# Absoulte values of eigenvalues in a plot
+p = plot(title=L"Absolute Eigenvalues of $B_{CGC}$")
+abs_eigvals = map(x -> abs(x), B_eigvals)
+scatter!(p, sort(abs_eigvals, rev=true), label="", ms=3)
+p

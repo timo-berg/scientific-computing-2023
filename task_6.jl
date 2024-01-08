@@ -2,6 +2,9 @@ using LinearAlgebra
 using Plots
 using ColorSchemes
 
+# TODO: Looks generally fine but still a bit fishy. Why does the solution not reach the right boundary?
+# TODO: Tolerance is reached but error is still high. Why?
+
 include("utils.jl")
 include("gauss_seidel.jl")
 include("conjugate_gradient.jl")
@@ -11,8 +14,8 @@ function simulate(N, c, tol=1e-10, max_iter=10000)
     b = get_b(N, construct_F(c))
     u0 = zeros(N - 1)
     M_inv = get_inv_M_SGS(A)
-    u, err, iter = conjugate_gradient(A, b, u0, tol, max_iter)
-    # u, err, iter = preconditioned_cg(A, b, u0, tol, max_iter, M_inv)
+    u, err, iter, res = conjugate_gradient(M_inv * A, M_inv * b, u0, tol, max_iter)
+    # u, err, iter, res = preconditioned_cg(A, b, u0, tol, max_iter, M_inv)
     return u, err, iter
 end
 
@@ -25,7 +28,7 @@ end
 function plot_solution(N, c, tol=1e-10, max_iter=100000)
     u_exact(x) = exp(x) * (1 - x)
     u, err, iter = simulate(N, c, tol, max_iter)
-    x_numeric = range(0, 1, length=N - 1)
+    x_numeric = range(1/N, 1-1/N, length=N - 1)
     p = plot(x_numeric, u, label="Numerical Solution", title="Conjugate Gradient Solution", xlabel="x", ylabel="u(x)")
     plot!(x_numeric, u_exact.(x_numeric), label="Exact Solution")
     print("Error: ", norm(u_exact.(x_numeric) - u), "\n")
@@ -56,4 +59,5 @@ for c in c_values
 end
 
 # Combined plot
-plot(p_N, p_c, layout=(2, 1), size=(800, 800))
+# plot(p_N, p_c, layout=(2, 1), size=(800, 800))
+plot_solution(100, 10)
