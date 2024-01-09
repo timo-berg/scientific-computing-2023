@@ -1,11 +1,13 @@
 using LinearAlgebra
 using Plots
-
+using LaTeXStrings
+include("plot_def.jl")
+include("gauss_seidel.jl")
 
 function plot_eig_complex_c_range(get_B)
     N = 100
     p = plot()
-    c_values =  [0, 5, 10, 100]
+    c_values = [0, 5, 10, 100]
     for c = c_values
         A = get_A(N, c)
         scatter!(p, eigvals(get_B(A)), label="C = $c", ms=3)
@@ -37,7 +39,6 @@ function plot_aboslute_values_c_range(get_B)
         abs_eig = abs.(eigenvalues)
         scatter!(p, sort(abs_eig, rev=true), label=L"c=%$c", ms=2, markerstrokewidth=0)
     end
-    savefig(p, "plots/plot.pdf")
     p
 end
 
@@ -51,7 +52,6 @@ function plot_aboslute_values_n_range(get_B)
         abs_eig = map(x -> abs(x), eigenvalues)
         scatter!(p, sort(abs_eig, rev=true), label=L"N=%$n", ms=2, markerstrokewidth=0)
     end
-    savefig(p, "plots/plot.pdf")
     p
 end
 
@@ -60,10 +60,13 @@ function plot_absolute_values_combined(get_B, title)
     p2 = plot_aboslute_values_n_range(get_B)
 
     # Combine plots and set global title
-    title = plot(title = title, grid = false, showaxis = false, bottom_margin = -30Plots.px)
+    title = plot(title=title, grid=false, showaxis=false, bottom_margin=-30Plots.px)
 
-    p = plot(title, p1, p2, layout = @layout([A{0.01h}; B; C]))
+    p = plot(title, p1, p2, layout=@layout([A{0.0001h}; B; C]), size=(600, 600))
+
+    return p
 end
 
-plot_absolute_values_combined(get_BGS, L"Eigenvalues of $B_{GS}$")
+plot_absolute_values_combined(get_BGS, "\n" * L"Eigenvalues of $B_{GS}$")
 
+savefig("plots/task_2_eigenvalues.png")

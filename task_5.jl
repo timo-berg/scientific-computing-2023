@@ -9,6 +9,7 @@ using Plots
 using LaTeXStrings
 include("gauss_seidel.jl")
 include("utils.jl")
+include("plot_def.jl")
 
 
 
@@ -27,9 +28,11 @@ function compare_condition_numbers(get_inv_M, method)
     end
 
     # Heatmap of condition numbers
-    p = heatmap(n_values, c_values, cond_values, title=L"Condition number of $M_{%$method}^{-1}A$", xlabel="N", ylabel="c", color=:viridis)
+    p = heatmap(n_values, c_values, cond_values, title="\n" * L"Condition number of $M_{%$method}^{-1}A$" * "\n", xlabel="N", ylabel="c", color=:viridis)
     return p
 end
 
 
 compare_condition_numbers(get_inv_M_SGS, "SGS")
+
+savefig("plots/task_5_condition_number.png")

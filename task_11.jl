@@ -4,10 +4,10 @@ using LaTeXStrings
 include("multi_grid.jl")
 include("gauss_seidel.jl")
 include("conjugate_gradient.jl")
+include("plot_def.jl")
 
 function get_projection_matrix(N, A)
-    n_h, n_H = get_fine_and_coarse_nr_node(N)
-    M_inv = get_M_CGC_inv(n_H, n_h, c)
+    M_inv = get_M_CGC_inv(A)
     return I - A * M_inv
 end
 
@@ -22,26 +22,21 @@ end
 
 function task11_residual_plot()
     # Get problem
-    N = 300
-    c_values = -50:10:50
-    p = plot(xlabel="Iteration", ylabel="Residual Error", yscale=:log10, title="Convergence of Projected CG")
-    yticks!(10.0 .^(-5:1:4))
-    for c in c_values
-        A = get_A(N, c)
-        b = get_b(N, construct_F(c))
-        _, errors, iters_used = solve_projected_CG(A, b, N)
-        plot!(0:iters_used, errors, label="N = $N, c = $c")
+    N_values = [10, 100, 300]
+    c_values = [50, 100]
+    p = plot(xlabel="Iteration", ylabel="Log Residual Error", yscale=:log10, title="Convergence of Projected CG")
+    yticks!(10.0 .^ (-5:1:4))
+    for N in N_values
+        for c in c_values
+            A = get_A(N, c)
+            b = get_b(N, construct_F(c))
+            _, errors, iters_used = solve_projected_CG(A, b, N)
+            plot!(0:iters_used, errors, label="N = $N, c = $c")
+        end
     end
-    savefig(p, "plots/task11_residual_plot.pdf")
     p
 end
 
-
-# Get the system
 task11_residual_plot()
 
-# # Plot error
-# p_error = plot(errors, title="Convergence of Multi-grid", xlabel="Iteration", ylabel="Error", label="N = $N, c = $c", yscale=:log10)
-
-# # Plot both
-# plot(p, p_error, layout=(2, 1), size=(800, 800))
+savefig("plots/task_11_residual.png")

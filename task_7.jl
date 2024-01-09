@@ -8,6 +8,7 @@ using ColorSchemes
 include("utils.jl")
 include("gauss_seidel.jl")
 include("conjugate_gradient.jl")
+include("plot_def.jl")
 
 # TODO: Ritz values are too big in magnitude. Why?
 

@@ -1,10 +1,11 @@
 include("gauss_seidel.jl")
+include("plot_def.jl")
 
 function get_spectral_Bgs_values(c_values, n_values, get_B)
     num_c = length(c_values)
     num_n = length(n_values)
     spectral_radiuses = Matrix{Float64}(undef, num_c, num_n)
-    
+
     for c_i = 1:num_c
         for n_i = 1:num_n
             A = get_A(n_values[n_i], c_values[c_i])
@@ -28,3 +29,5 @@ function plot_spectral_heatmap(get_B)
 end
 
 plot_spectral_heatmap(get_BGS)
+
+savefig("plots/task_3_spectral_radius_heatmap.png")

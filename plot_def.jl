@@ -1,0 +1,5 @@
+theme(:vibrant)
+default(fontfamily="Helvetica")
+default(guidefontsize=10)
+default(title_location=:left, titlefontsize=14)
+default(dpi=300)

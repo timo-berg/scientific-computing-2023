@@ -1,6 +1,7 @@
 using Plots
 using LinearAlgebra
 include("utils.jl")
+include("plot_def.jl")
 
 
 # Set the coefficients
@@ -17,7 +18,7 @@ mesh_sizes = [3, 6, 10]
 
 ### Plot exact solution
 x_exact = range(0, 1, length=1000)
-solution_plot = plot(x_exact, u_exact.(x_exact), label="Exact Solution", title="Exact Solution vs. Numerical Solution", xlabel="x", ylabel="u(x)")
+solution_plot = plot(x_exact, u_exact.(x_exact), label="Exact Solution", title="Exact Solution vs. Direct Solution\n", xlabel="x", ylabel="u(x)")
 
 # Vary the mesh size
 for N in mesh_sizes
@@ -57,8 +58,10 @@ for N in mesh_sizes
 end
 
 # Plot the errors
-error_plot = scatter(mesh_sizes, errors, title="Discretization Error scaling with number of mesh points", xlabel="Mesh Points", ylabel="Error", legend=false)
-# plot!(mesh_sizes, 1 ./ mesh_sizes.^4)
+error_plot = scatter(mesh_sizes, errors, title="Discretization Error Scaling with Grid Size", xlabel="Grid Size", ylabel="Error", legend=false, ms=3)
 
-display(solution_plot)
+# display(solution_plot)
 # display(error_plot)
+
+savefig(solution_plot, "plots/task_1_solution_plot.png")
+savefig(error_plot, "plots/task_1_error_plot.png")
