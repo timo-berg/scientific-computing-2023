@@ -1,7 +1,7 @@
 function iterative_solve(A, b, x_0, M_inv, tol=1e-6, maxiter=1000, return_residuals=false)
     r = A * x_0 - b
     x = x_0
-    
+
     if return_residuals
         residuals = [r]
     end
@@ -15,7 +15,7 @@ function iterative_solve(A, b, x_0, M_inv, tol=1e-6, maxiter=1000, return_residu
         if norm(r) <= tol
             if return_residuals
                 return x, i, residuals
-            else 
+            else
                 return x, i
             end
         end
@@ -34,18 +34,18 @@ function get_A(N::Int, c::Number)
 
     # Set the boundary points
     A[1, 1] = c + 2 / h^2
-    A[1, 2] =  - 1 / h^2
+    A[1, 2] = -1 / h^2
 
-    A[N-1, N-2] = - 1 / h^2
+    A[N-1, N-2] = -1 / h^2
     A[N-1, N-1] = c + 2 / h^2
 
 
 
     # Set the interior points
     for i = 2:N-2
-        A[i, i-1] = - 1 / h^2
+        A[i, i-1] = -1 / h^2
         A[i, i] = c + 2 / h^2
-        A[i, i+1] = - 1 / h^2
+        A[i, i+1] = -1 / h^2
     end
 
     return Symmetric(A)
@@ -81,24 +81,24 @@ function check_correctness(N, c)
     A = get_A(N, c)
     b = get_b(N, construct_F(c))
     u_exact(x) = exp(x) * (1 - x)
-    u = u_exact.(range(1/N, 1 - 1/N, length=N - 1))
+    u = u_exact.(range(1 / N, 1 - 1 / N, length=N - 1))
     error = norm(A * u - b)
 
     return error
 end
 
-""" Inspects the incfluence of c on the shape of F.
-"""
-function inspect_c_influence()
-    N = 100
-    c_values = [0, 1, 10, 100]
-    p = plot(title="Influence of c on F", xlabel="x", ylabel="F(x)")
-    for c in c_values
-        F = construct_F(c)
-        x = range(0, 1, length=100)
-        plot!(p, x, F.(x), label="c = $c")
-    end
-    p
-end
+# """ Inspects the incfluence of c on the shape of F.
+# """
+# function inspect_c_influence()
+#     N = 100
+#     c_values = [0, 1, 10, 100]
+#     p = plot(title="Influence of c on F", xlabel="x", ylabel="F(x)")
+#     for c in c_values
+#         F = construct_F(c)
+#         x = range(0, 1, length=100)
+#         plot!(p, x, F.(x), label="c = $c")
+#     end
+#     p
+# end
 
-inspect_c_influence()
+# inspect_c_influence()

@@ -10,18 +10,26 @@ using LaTeXStrings
 include("gauss_seidel.jl")
 include("utils.jl")
 
-c_values = 0:2:20
-n_values = 10:10:200
-cond_values = zeros(length(c_values), length(n_values))
 
-for (i, c) in enumerate(c_values)
-    for (j, n) in enumerate(n_values)
-        A = get_A(n, c)
-        M_inv_SGS = get_inv_M_SGS(A)
-        cond_nr = cond(M_inv_SGS * A)
-        cond_values[i, j] = cond_nr
+
+function compare_condition_numbers(get_inv_M, method)
+    c_values = 0:2:20
+    n_values = 10:10:200
+    cond_values = zeros(length(c_values), length(n_values))
+
+    for (i, c) in enumerate(c_values)
+        for (j, n) in enumerate(n_values)
+            A = get_A(n, c)
+            M_inv_SGS = get_inv_M(A)
+            cond_nr = cond(M_inv_SGS * A)
+            cond_values[i, j] = cond_nr
+        end
     end
+
+    # Heatmap of condition numbers
+    p = heatmap(n_values, c_values, cond_values, title=L"Condition number of $M_{%$method}^{-1}A$", xlabel="N", ylabel="c", color=:viridis)
+    return p
 end
 
-# Heatmap of condition numbers
-heatmap(n_values, c_values, cond_values, title=L"Condition number of $M_{SGS}^{-1}A$", xlabel="N", ylabel="c", color=:viridis)
+
+compare_condition_numbers(get_inv_M_SGS, "SGS")
