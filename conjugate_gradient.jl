@@ -109,5 +109,5 @@ function preconditioned_cg_solver(A, b, M_inv)
     preconditioned_cg(A, b, x0, 1e-6, 1000, M_inv)
 end
 
-@time conjugate_gradient_solver(M_inv * A, M_inv * b)
-@time preconditioned_cg_solver(A, b, M_inv)
+#@time conjugate_gradient_solver(M_inv * A, M_inv * b)
+#@time preconditioned_cg_solver(A, b, M_inv)

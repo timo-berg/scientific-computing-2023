@@ -33,7 +33,7 @@ function gauss_seidel(A, b, u0, tol=1e-6, max_iter=1000)
         u = u_new
         u_new = do_step(u, A, b)
 
-        err = norm(A * u_new - b)
+        err = norm(A * u_new - b)/norm(b)
 
         push!(err_list, err)
         iter += 1
@@ -56,7 +56,7 @@ function plot_convergence(N, c, tol=1e-6, max_iter=1000)
     return p
 end
 
-function plot_solution(N, c, tol=1e-6, max_iter=15000)
+function plot_solution(N, c, tol=1e-6, max_iter=20000)
     u_exact(x) = exp(x) * (1 - x)
     u, err, iter = simulate(N, c, tol, max_iter)
     x_numeric = range(1/N, 1-1/N, length=N - 1)

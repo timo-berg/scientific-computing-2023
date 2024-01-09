@@ -9,6 +9,9 @@ function linear_interpolation(h, H)
         I[2*i, i] = 2
         I[2*i+1, i] = 1
     end
+    # When interpolating bedween the 'edge' inner points and the boundary value, we just choose the inner point.
+    I[1, 1] = 2 
+    I[h, H] = 2
 
     return I * 1 / 2
 end
@@ -25,6 +28,9 @@ function half_weight_mapping(h, H)
     return I * 1 / 4
 end
 
+print(half_weight_mapping(5, 2))
+
+
 """
 Returns the number of nodes in the 1 dimenionsal fine and double coarse grid given the number of meshes.
 """
@@ -39,11 +45,10 @@ Returns the inverse of the coarse grid correction operator
 function get_M_CGC_inv(n_H, n_h, c)
     I_H_to_h = linear_interpolation(n_h, n_H)
     I_h_to_H = half_weight_mapping(n_h, n_H)
-    A = get_A(n_h + 1, c)
+    A_h = get_A(n_h + 1, c) # +1 because function takes nr of meshes, not nr of internal points
+    A_H = I_h_to_H * A_h * I_H_to_h
 
-    A_H_inv = inv(I_h_to_H * A * I_H_to_h)
-
-    return I_H_to_h * A_H_inv * I_h_to_H
+    return I_H_to_h * inv(A_H) * I_h_to_H
 end
 
 """
@@ -54,8 +59,10 @@ Returns the error propagation matrix for the CGC method.
 # Arguments
 - `n_H::Int`: Number of internal nodes in the coarse grid
 - `n_h::Int`: Number of internal nodes in the fine grid
+- `c::Number`: The c value in the diff equation
+- `A::Matrix`: The coefficient matrix for the diff equation
 """
-function get_B_CGC(n_H, n_h, c)
+function get_B_CGC(n_H, n_h, c, A)
     M_CGC_inv = get_M_CGC_inv(n_H, n_h, c)
 
     return I - M_CGC_inv * A
