@@ -8,6 +8,7 @@ using LinearAlgebra
 using Plots
 # using Debugger
 include("utils.jl")
+include("task_3.jl")
 
 function do_step(u, A, b)
     u_old = copy(u)
@@ -42,11 +43,24 @@ function gauss_seidel(A, b, u0, tol=1e-6, max_iter=1000)
     return u_new, err_list, iter
 end
 
-function simulate(N, c, tol=1e-10, max_iter=10000)
+function simulate_gs(N, c, tol=1e-10, max_iter=10000)
     A = get_A(N, c)
     b = get_b(N, construct_F(c))
     u0 = zeros(N - 1)
     u, err, iter = gauss_seidel(A, b, u0, tol, max_iter)
+    return u, err, iter
+end
+
+function simulate_iterative(N, c, get_M_inv, tol=1e-10, max_iter=10000)
+    A = get_A(N, c)
+    b = get_b(N, construct_F(c))
+    u0 = zeros(N - 1)
+    M_inv = get_M_inv(A)
+    # The +1 is required because the GS has max_iter + 1 iterations implicitly
+    u, iter, residuals  = iterative_solve(A, b, u0, M_inv, tol, max_iter+1, true)
+    
+    err = map(x -> norm(x)/norm(b), residuals)
+
     return u, err, iter
 end
 
@@ -67,8 +81,64 @@ function plot_solution(N, c, tol=1e-6, max_iter=20000)
     return p
 end
 
+function plot_convergence_combined(c_values, N_values, get_B, method, get_M_inv=nothing, tol=1e-6, max_iter=1000)
+    p = plot(title="Rate of convergence for $method", ylabel="Error", xlabel="Iteration")
+    
+    spectral_values = get_spectral_Bgs_values(c_values, N_values, get_B)
+
+    for (i_N, N) in enumerate(N_values)
+        for (i_c, c) in enumerate(c_values)
+            if method == "Gauss-Seidel"
+                u, err, iter = simulate_gs(N, c, tol, max_iter)
+            else
+                u, err, iter = simulate_iterative(N, c, get_M_inv, tol, max_iter)
+            end
+            spectral_value = spectral_values[i_c, i_N]
+            plot!(p, err, label="N = $N, c = $c", yscale=:log10)
+
+            # Annotate the spectral radius
+            # Round the spectral value to 3 decimals
+            spectral_value = round(spectral_value, digits=3)
+            annotate!(p, iter, err[end], text("$spectral_value", 7, :left))
+        end
+    end
+    return p
+end
 
 
-# plot_convergence(100, 20)
-plot_solution(200, 10)
+function plot_convergece_rate_against_spectral_radius(c_values, N_values, get_B, method,  M_inv=I, tol=1e-6, max_iter=1000)
+    spectral_values = get_spectral_Bgs_values(c_values, N_values, get_B)
+    convergence_rates = zeros(length(c_values), length(N_values))
 
+    p = plot(title="Log Convergence Rate vs. Spectral Radius", xlabel="Spectral Radius", ylabel="Log Convergence Rate")
+    for (i_N, N) in enumerate(N_values)
+        for (i_c, c) in enumerate(c_values)
+            if method == "Gauss-Seidel"
+                u, err, iter = simulate_gs(N, c, tol, max_iter)
+            else
+                u, err, iter = simulate_iterative(N, c, M_inv, tol, max_iter)
+            end
+            
+            # Determine the log slope of the last 10 iterations
+            log_err = log10.(err[end-10:end])
+            convergence_rates[i_c, i_N] = (log_err[end] - log_err[1]) / 10
+            
+        end
+    end
+
+    # Plot the convergence rates against the spectral radius as a scatter plot
+    for (i_N, N) in enumerate(N_values)
+        scatter!(p, spectral_values[:,i_N], convergence_rates[:,i_N], label="N = $N", markerstrokewidth=0)
+    end
+
+    return p
+end
+
+
+c_values = 0:10:100
+N_values = [20, 50]
+
+# plot_convergence_combined(c_values, N_values, get_BGS, "Gauss-Seidel")
+
+
+plot_convergece_rate_against_spectral_radius(c_values, N_values, get_BGS, "Gauss-Seidel")

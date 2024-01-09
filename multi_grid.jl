@@ -34,44 +34,41 @@ function half_weight_mapping(h, H)
     return I * 1 / 4
 end
 
-print(half_weight_mapping(5, 2))
-
-
-"""
-Returns the number of nodes in the 1 dimenionsal fine and double coarse grid given the number of meshes.
-"""
 function get_fine_and_coarse_nr_node(N)
     n_h, n_H = N-1, Int(N/2)
     return n_h, n_H
 end
 
-"""
-Returns the inverse of the coarse grid correction operator
-"""
-function get_M_CGC_inv(n_H, n_h, c)
+function get_M_CGC_inv(A)
+    n_h, n_H = get_fine_and_coarse_nr_node(size(A, 1)+1)
     I_H_to_h = linear_interpolation(n_h, n_H)
     I_h_to_H = half_weight_mapping(n_h, n_H)
-    A_h = get_A(n_h + 1, c) # +1 because function takes nr of meshes, not nr of internal points
-    A_H = I_h_to_H * A_h * I_H_to_h
+    A_H = I_h_to_H * A * I_H_to_h
 
     return I_H_to_h * inv(A_H) * I_h_to_H
 end
 
-"""
-    get_B_CGC(n_H, n_h, c)
-
-Returns the error propagation matrix for the CGC method.
-
-# Arguments
-- `n_H::Int`: Number of internal nodes in the coarse grid
-- `n_h::Int`: Number of internal nodes in the fine grid
-- `c::Number`: The c value in the diff equation
-- `A::Matrix`: The coefficient matrix for the diff equation
-"""
-function get_B_CGC(n_H, n_h, c, A)
-    M_CGC_inv = get_M_CGC_inv(n_H, n_h, c)
+function get_B_CGC(A)
+    M_CGC_inv = get_M_CGC_inv(A)
 
     return I - M_CGC_inv * A
+end
+
+
+function get_B_TGM(A)
+    B_CGC = get_B_CGC(A)
+    B_BGS = get_B_BGS(A)
+    B_FGS = get_B_FGS(A)
+
+    return B_BGS * B_CGC * B_FGS
+end
+
+function get_M_TGM_inv(A)
+    M_BGS = get_inv_M_BGS(A)
+    M_CGC = get_M_CGC_inv(A)
+    M_FGS = get_inv_M_FGS(A)
+
+    return M_BGS + M_CGC + M_FGS - M_BGS * A * M_CGC - M_CGC * A * M_FGS - M_BGS * A * M_FGS + M_BGS * A * M_CGC * A * M_FGS
 end
 
 # Two-grid cycle
@@ -105,8 +102,6 @@ function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner, solver=dire
 
     return u
 end
-
-
     
 # Multi-grid cycle
 function multigrid(A, b, ϵ, max_iter)
@@ -143,4 +138,12 @@ function multigrid(A, b, ϵ, max_iter)
     println("Error: ", norm(A * u - b))
 
     return u, errors
+end
+
+
+function test_TGM(A)
+    B_TGM = get_B_TGM(A)
+    M_TGM_inv = get_M_TGM_inv(A)
+
+    return norm(B_TGM - I + M_TGM_inv * A)
 end
