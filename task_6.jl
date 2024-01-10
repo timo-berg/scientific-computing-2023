@@ -4,7 +4,7 @@ using ColorSchemes
 
 # TODO: Looks generally fine but still a bit fishy. Why does the solution not reach the right boundary?
 # TODO: Tolerance is reached but error is still high. Why?
-
+# TODO: add spectral radius to the first plots
 include("utils.jl")
 include("gauss_seidel.jl")
 include("conjugate_gradient.jl")

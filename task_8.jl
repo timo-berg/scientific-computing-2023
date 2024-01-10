@@ -16,8 +16,10 @@ B_CGC = get_B_CGC(A)
 B_eigvals = eigvals(B_CGC)
 
 # Absoulte values of eigenvalues in a plot
-p = plot(title=L"Absolute Eigenvalues of $B_{CGC}$")
+p = plot(title="\n" * L"Absolute Eigenvalues of $B_{CGC}$" * "\n")
 abs_eigvals = map(x -> abs(x), B_eigvals)
 scatter!(p, abs_eigvals, label="", ms=2, markerstrokewidth=0)
 p
+
+savefig("plots/task_8_eigenvalues.png")
 
