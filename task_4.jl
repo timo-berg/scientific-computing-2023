@@ -108,8 +108,8 @@ end
 
 
 function plot_convergece_rate_against_spectral_radius(c_values, N_values, get_B, method, M_inv=I, tol=1e-6, max_iter=1000)
-    c_values = 0:10:100
-    N_values = [20, 50]
+    c_values = [-5, 0, 5, 10, 100]
+    N_values = [10, 50, 100, 200, 300]
 
     spectral_values = get_spectral_Bgs_values(c_values, N_values, get_B)
     convergence_rates = zeros(length(c_values), length(N_values))

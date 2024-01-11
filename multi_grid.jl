@@ -30,10 +30,58 @@ function get_fine_and_coarse_nr_node(N)
     return n_h, n_H
 end
 
+function linear_interpolation_dirichilet(h, H)
+    I = zeros(h, H)
+
+    for i = 2:H-1
+        I[2*i-2, i] = 1
+        I[2*i-1, i] = 2
+        I[2*i, i] = 1
+    end
+    # When interpolating bedween the 'edge' inner points and the boundary value, we just choose the inner point.
+    I[1, 1] = 2
+    I[2, 1] = 1
+    I[h-1, H] = 1
+    I[h, H] = 2
+
+    return I * 1 / 2
+end
+
+function half_weight_mapping_dirichilet(h, H)
+    I = zeros(H, h)
+    # Interior points
+    for i = 2:H-1
+        I[i, 2*i-2] = 1
+        I[i, 2*i-1] = 2
+        I[i, 2*i] = 1
+    end
+
+    # Boundary points
+    I[1, 1] = 4
+    I[H, h] = 4
+
+    return I * 1 / 4
+end
+
+function get_fine_and_coarse_nr_node_dirichilet(N)
+    n_h, n_H = N - 1, Int(N / 2)
+    return n_h, n_H
+end
+
+
 function get_M_CGC_inv(A)
     n_h, n_H = get_fine_and_coarse_nr_node(size(A, 1) + 1)
     I_H_to_h = linear_interpolation(n_h, n_H)
     I_h_to_H = half_weight_mapping(n_h, n_H)
+    A_H = I_h_to_H * A * I_H_to_h
+
+    return I_H_to_h * inv(A_H) * I_h_to_H
+end
+
+function get_M_CGC_inv_dirichilet(A)
+    n_h, n_H = get_fine_and_coarse_nr_node_dirichilet(size(A, 1) + 1)
+    I_H_to_h = linear_interpolation_dirichilet(n_h, n_H)
+    I_h_to_H = half_weight_mapping_dirichilet(n_h, n_H)
     A_H = I_h_to_H * A * I_H_to_h
 
     return I_H_to_h * inv(A_H) * I_h_to_H

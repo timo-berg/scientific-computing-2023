@@ -31,7 +31,7 @@ end
 
 function plot_aboslute_values_c_range(get_B)
     n_value = 100
-    c_values = [0, 5, 10, 100]
+    c_values = [-5, 0, 5, 10, 100]
     p = plot()
     for c = c_values
         A = get_A(n_value, c)
@@ -44,13 +44,14 @@ end
 
 function plot_aboslute_values_n_range(get_B)
     c_value = 0
-    n_values = [10, 100, 200, 400]
+    n_values = [10, 50, 100, 200, 300]
     p = plot()
     for n = n_values
         A = get_A(n, c_value)
         eigenvalues = eigvals(get_B(A))
         abs_eig = map(x -> abs(x), eigenvalues)
-        scatter!(p, sort(abs_eig, rev=true), label=L"N=%$n", ms=2, markerstrokewidth=0)
+        # Plot the eigenvalues such that they are evenly distributed on the x axis
+        scatter!(p, 0:1/n:1, sort(abs_eig, rev=true), label=L"N=%$n", ms=2, markerstrokewidth=0)
     end
     p
 end

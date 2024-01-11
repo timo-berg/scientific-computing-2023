@@ -33,7 +33,7 @@ function plot_ritz_values(get_M_inv, method)
 
     x, convergence, maxiter, residuals = preconditioned_cg(A, b, x0, tol, maxiter, M_inv)
     # x, convergence, maxiter, residuals = conjugate_gradient(M_inv * A, M_inv * b, x0, tol, maxiter)
-
+    print(maxiter)
     # Normalize the residuals
     residuals = normalize.(residuals)
 
@@ -54,16 +54,19 @@ function plot_ritz_values(get_M_inv, method)
                 color = color_palette.colors[Int(round((i - 0) / (length(residuals) - 0) * (length(color_palette.colors) - 1)) + 1)]
 
                 # Plot the eigenvalues of T such that they are evenly distributed on the x axis            
-                # scatter!(p, 0:1/i:1,abs.(eigvals(T)), label="", ms=1, color=color)
-                plot!(p, abs.(eigvals(T)), label="", ms=3, color=color)
+                scatter!(p, 0:1/i:1, abs.(eigvals(T)), label="", ms=2, color=color)
+                # plot!(p, abs.(eigvals(T)), label="", ms=3, color=color)
             end
         end
     end
 
     # Plot the real eigenvalues of M_inv * A
-    plot!(p, abs.(eigvals(M_inv * A)), label="", ms=3, color=:blue)
+    scatter!(p, 0:1/N:1, abs.(eigvals(M_inv * A)), label="", ms=2, color=:blue)
+    # plot!(p, abs.(eigvals(M_inv * A)), label="", ms=3, color=:blue)
 
     return p
 end
 
 plot_ritz_values(get_inv_M_SGS, "Gauss-Seidel")
+
+savefig("plots/task_7_ritz_values_gs.png")
