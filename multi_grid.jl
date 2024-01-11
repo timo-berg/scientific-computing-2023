@@ -4,16 +4,11 @@ using LinearAlgebra
 function linear_interpolation(h, H)
     I = zeros(h, H)
 
-    for i = 2:H-1
-        I[2*i-2, i] = 1
-        I[2*i-1, i] = 2
-        I[2*i, i] = 1
+    for i = 1:H
+        I[2*i-1, i] = 1
+        I[2*i, i] = 2
+        I[2*i+1, i] = 1
     end
-    # When interpolating bedween the 'edge' inner points and the boundary value, we just choose the inner point.
-    I[1, 1] = 2 
-    I[2, 1] = 1
-    I[h-1, H] = 1
-    I[h, H] = 2
 
     return I * 1 / 2
 end
@@ -21,26 +16,22 @@ end
 function half_weight_mapping(h, H)
     I = zeros(H, h)
     # Interior points
-    for i = 2:H-1
-        I[i, 2*i-2] = 1
-        I[i, 2*i-1] = 2
-        I[i, 2*i] = 1
+    for i = 1:H
+        I[i, 2*i-1] = 1
+        I[i, 2*i] = 2
+        I[i, 2*i+1] = 1
     end
-
-    # Boundary points
-    I[1, 1] = 4
-    I[H, h] = 4
 
     return I * 1 / 4
 end
 
 function get_fine_and_coarse_nr_node(N)
-    n_h, n_H = N-1, Int(N/2)
+    n_h, n_H = N - 1, Int(N / 2 - 1)
     return n_h, n_H
 end
 
 function get_M_CGC_inv(A)
-    n_h, n_H = get_fine_and_coarse_nr_node(size(A, 1)+1)
+    n_h, n_H = get_fine_and_coarse_nr_node(size(A, 1) + 1)
     I_H_to_h = linear_interpolation(n_h, n_H)
     I_h_to_H = half_weight_mapping(n_h, n_H)
     A_H = I_h_to_H * A * I_H_to_h
@@ -77,7 +68,7 @@ function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner, solver=dire
     S_h = I - preconditioner * A
     # Interpolated problem
     A_H = I_h_to_H * A * I_H_to_h
-    
+
     # Pre smoothing
     u = S_h * u + preconditioner * b
 
@@ -102,7 +93,7 @@ function two_grid_cycle(A, b, u, I_H_to_h, I_h_to_H, preconditioner, solver=dire
 
     return u
 end
-    
+
 # Multi-grid cycle
 function multigrid(A, b, ϵ, max_iter)
     n_h = length(b)
@@ -119,7 +110,7 @@ function multigrid(A, b, ϵ, max_iter)
     u = zeros(h)
 
     errors = []
-    
+
     # Iterate
     for i = 1:max_iter
         # Two-grid cycle
