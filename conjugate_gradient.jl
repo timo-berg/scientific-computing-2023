@@ -26,6 +26,7 @@ function conjugate_gradient(A, b, x0, tol, maxiter)
     x = x0
     convergence = [norm(r)]
     residuals = [r]
+    b_norm = norm(b)
 
     for i = 1:maxiter
         if i == 1
@@ -42,12 +43,12 @@ function conjugate_gradient(A, b, x0, tol, maxiter)
         r = r - α * A_p
 
         push!(residuals, r)
-        push!(convergence, norm(r))
+        push!(convergence, norm(r) / b_norm)
         if norm(r) / norm(b) < tol
             real_residual = A * x - b
-            if (norm(real_residual) / norm(b)) > tol
+            if (norm(real_residual) / b_norm) > tol
                 r = real_residual
-            else 
+            else
                 return x, convergence, i, residuals
             end
         end
@@ -89,7 +90,7 @@ function preconditioned_cg(A, b, x0, tol, maxiter, M_inv)
         # Updating the residual
         r_old = r
         r = r - α * A_p
-        push!(convergence, norm(r))
+        push!(convergence, norm(r) / norm(b))
         push!(residuals, r)
         if norm(r) / norm(b) < tol
             return x, convergence, i, residuals
