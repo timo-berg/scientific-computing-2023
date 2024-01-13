@@ -71,9 +71,26 @@ function plot_convergence(N, c, tol=1e-6, max_iter=1000)
     return p
 end
 
-function plot_solution(N, c, tol=1e-6, max_iter=20000)
+# Plots the solution for multiple specified iterations 
+function plot_multiple_sols(N,c, tol=1e-6)
+    iterations = [10,50,100,135,200, 270]
     u_exact(x) = exp(x) * (1 - x)
-    u, err, iter = simulate(N, c, tol, max_iter)
+    x_numeric = range(1 / N, 1 - 1 / N, length=N - 1)
+    p = plot(label="Numerical Solutions", title="Gauss Seidel Solutions vs. Numerical Solution", xlabel="x", ylabel="u(x)")
+    plot!(x_numeric, u_exact.(x_numeric), label="Exact Solution")
+    # Color gradinet for the iterations
+    colors = cgrad(:blues, length(iterations), rev=true)
+    for (i, iteration) in enumerate(reverse(iterations))
+        u, err, iter = simulate_gs(N, c, tol, iteration)
+        # Plot the u values with color depnedning on the iteration number
+        plot!(p, x_numeric, u, label="Iteration: $iteration", color=colors[i])
+    end
+    return p
+end
+
+function plot_solution(N, c, tol=1e-6, max_iter=80)
+    u_exact(x) = exp(x) * (1 - x)
+    u, err, iter = simulate_gs(N, c, tol, max_iter)
     x_numeric = range(1 / N, 1 - 1 / N, length=N - 1)
     p = plot(x_numeric, u, label="Numerical Solution", title="Exact Solution vs. Numerical Solution", xlabel="x", ylabel="u(x)")
     plot!(x_numeric, u_exact.(x_numeric), label="Exact Solution")
@@ -82,7 +99,10 @@ function plot_solution(N, c, tol=1e-6, max_iter=20000)
     return p
 end
 
-function plot_convergence_combined(c_values, N_values, get_B, method, get_M_inv=nothing, tol=1e-6, max_iter=1000)
+function plot_convergence_combined(get_B, method, get_M_inv=nothing, tol=1e-6, max_iter=1000)
+    c_values = 0:25:100
+    N_values = [50]
+
     p = plot(title="Rate of convergence for $method", ylabel="Error", xlabel="Iteration")
 
     spectral_values = get_spectral_Bgs_values(c_values, N_values, get_B)
@@ -107,9 +127,9 @@ function plot_convergence_combined(c_values, N_values, get_B, method, get_M_inv=
 end
 
 
-function plot_convergece_rate_against_spectral_radius(c_values, N_values, get_B, method, M_inv=I, tol=1e-6, max_iter=1000)
-    c_values = [-5, 0, 5, 10, 100]
-    N_values = [10, 50, 100, 200, 300]
+function plot_convergece_rate_against_spectral_radius(get_B, method, M_inv=I, tol=1e-6, max_iter=1000)
+    c_values = 0:10:100
+    N_values = [20, 50]
 
     spectral_values = get_spectral_Bgs_values(c_values, N_values, get_B)
     convergence_rates = zeros(length(c_values), length(N_values))
@@ -133,15 +153,22 @@ function plot_convergece_rate_against_spectral_radius(c_values, N_values, get_B,
     # Plot the convergence rates against the spectral radius as a scatter plot
     for (i_N, N) in enumerate(N_values)
         scatter!(p, spectral_values[:, i_N], convergence_rates[:, i_N], label="N = $N", markerstrokewidth=0)
+        # Annotate each point with the corresponding c value
+        for (i_c, c) in enumerate(c_values)
+            annotate!(p, spectral_values[i_c, i_N]+0.004, convergence_rates[i_c, i_N]-0.002, text("$c", 7, :left))
+        end
     end
 
     return p
 end
 
+# plot_multiple_sols(100, 100)
 
-# plot_convergence_combined(c_values, N_values, get_BGS, "Gauss-Seidel")
+# plot_convergence_combined(get_BGS, "Gauss-Seidel")
 
 
-plot_convergece_rate_against_spectral_radius(c_values, N_values, get_BGS, "Gauss-Seidel")
+plot_convergece_rate_against_spectral_radius(get_BGS, "Gauss-Seidel")
 
-savefig("plots/task_4_convergence_rate.png")
+# savefig("plots/task_4_error_vs_iterations_N100.png")
+# savefig("plots/task_4_convergence_rate.png")
+# savefig("plots/task_4_solutions_sample.png")
